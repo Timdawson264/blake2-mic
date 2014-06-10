@@ -15,10 +15,10 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "blake2.h"
+#include "blake2-mic.h"
 #include "blake2-impl.h"
 
-#include "blake2s-round.h"
+#include "blake2s-round-mic.h"
 
 #include <immintrin.h>
 
@@ -234,7 +234,7 @@ static inline void printf128(char* name, __m512i v){
     
 }
 
-#include "blake2s-load-sse41.h"
+#include "blake2s-load-mic.h"
 static inline int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2S_BLOCKBYTES] )
 {
 	__m512i row1, row2, row3, row4;

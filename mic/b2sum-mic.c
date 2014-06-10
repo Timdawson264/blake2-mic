@@ -24,7 +24,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "blake2.h"
+#include "blake2-mic.h"
 
 
 static void usage( char **argv )
@@ -40,12 +40,8 @@ int main( int argc, char **argv )
   unsigned char hash[BLAKE2S_OUTBYTES] = {0};
   int c;
   
-  
-  #ifdef PHI
-    printf("PHI Version\n");
-  #else
-    printf("Referance\n");
-  #endif
+  printf("PHI Version\n");
+
   
 
   if ( argc == 1 ) usage( argv ); /* show usage upon no-argument */

@@ -62,7 +62,7 @@
   row2 = TOI(_mm512_permute_ps( TOF(row2), _MM_SHUFFLE(2,1,0,3) ));
 
 
-#include "blake2s-load-sse41.h"
+#include "blake2s-load-mic.h"
 
 
  

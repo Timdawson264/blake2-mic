@@ -1,15 +1,18 @@
 
+CFLAGS=$CFLAGS\ -DDEBUG
 
+#SSE Version
+icc -std=gnu99 ref/b2sum.c ref/blake2s.c -o b2sum_sse $CFLAGS
+#Referance Version
+icc -std=gnu99 ref/b2sum.c ref/blake2s-ref.c -o b2sum_ref $CFLAGS
+#My Phi Implementation
+icc -std=gnu99 mic/b2sum-mic.c mic/blake2s-mic.c -o b2sum_mic $CFLAGS
 
-#icc -std=gnu99 blake2s-ref.c ../sse/b2sum.c -o ../sse/b2sum_r0_ref
-icc -std=gnu99 /home/tim/blake2/sse/blake2s.c b2sum.c -o b2sum_sse -DHAVE_SSSE3 -DHAVE_SSE41 #-DDEBUG
-icc -std=gnu99 blake2s.c b2sum.c -o b2sum_phi -DPHI #-DDEBUG
-
-~/sde-external-6.22.0-2014-03-06-lin/sde64 -knl -mix -- ./b2sum_phi $1  > b2sum_phi.log
+~/sde-external-6.22.0-2014-03-06-lin/sde64 -knl -- ./b2sum_mic $1  > b2sum_mic.log
 ./b2sum_sse $1 > b2sum_sse.log
-./b2sum_REF -a blake2s $1 > b2sum_REF.log
+./b2sum_ref $1 > b2sum_ref.log
 
 #Side by Side copare
-diff b2sum_sse.log b2sum_phi.log -y | less    
+diff b2sum_sse.log b2sum_mic.log -y | less    
 
 tail -n1 *.log
