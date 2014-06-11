@@ -441,7 +441,7 @@ int blake2s_update( blake2s_state *S, const uint8_t ** in, uint64_t * inlen)
     {
 
     //INTERLEAVE_BUF_FILL;
-    fprintf(stderr,"STATUS_MEM: %u, %u, %u, %u\n",in[3],in[2],in[1],in[0]);
+    //fprintf(stderr,"STATUS_MEM: %u, %u, %u, %u\n",in[3],in[2],in[1],in[0]);
     if(in[0]!=NULL){             
         memcpy( S->buf,        in[0], 16);
         memcpy( S->buf+64,     in[0]+16, 16);
@@ -488,7 +488,7 @@ int blake2s_update( blake2s_state *S, const uint8_t ** in, uint64_t * inlen)
     {
         
         for(int CHANNEL=0;CHANNEL<4;CHANNEL++){
-            fprintf(stderr,"Checking Streams: %u-%u\n",CHANNEL,inlen[CHANNEL]);
+            //fprintf(stderr,"Checking Streams: %u-%u\n",CHANNEL,inlen[CHANNEL]);
             if(!(inlen[CHANNEL]> BLAKE2S_BLOCKBYTES)){
                 if(in[CHANNEL]==NULL){
                      inlen[CHANNEL]=-1;//Make Channel Quite
@@ -534,7 +534,7 @@ int blake2s_update( blake2s_state *S, const uint8_t ** in, uint64_t * inlen)
 /* Is this correct? */
 int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen, size_t CHANNEL )
 {
-  fprintf(stderr,"FINAL: %u\n",CHANNEL);
+  //fprintf(stderr,"FINAL: %u\n",CHANNEL);
   uint8_t buffer[BLAKE2S_OUTBYTES];
   
   blake2s_increment_counter( S, (uint32_t)S->buflen[CHANNEL], CHANNEL);

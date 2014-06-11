@@ -54,7 +54,7 @@ int main( int argc, char **argv ){
                 fileLength[x] = GetLength(FileNames[x]);
                 stream [x] = mmap(NULL, fileLength[x],  PROT_READ, MAP_PRIVATE , pf[x], 0);
                 fileNum++;
-                fprintf(stderr,"ADDED %s,%u\n",FileNames[x],fileLength[x]);
+                //fprintf(stderr,"ADDED %s,%u\n",FileNames[x],fileLength[x]);
                 //Can Do Key Stuff Here
                 blake2s_init( S, BLAKE2S_OUTBYTES, x);
                 
@@ -63,11 +63,11 @@ int main( int argc, char **argv ){
         if(stream[0] == NULL && stream[1] == NULL && stream[2] == NULL && stream[3] == NULL)
             return 0;
         
-        fprintf(stderr,"STATUS: %u, %u, %u, %u\n",stream[3],stream[2],stream[1],stream[0]);
+        //fprintf(stderr,"STATUS: %u, %u, %u, %u\n",stream[3],stream[2],stream[1],stream[0]);
         
         //Run Hash
         int CHANNEL = blake2s_update( S, stream, fileLength);
-        fprintf(stderr,"Done CHAN: %u\n",CHANNEL);    
+        //fprintf(stderr,"Done CHAN: %u\n",CHANNEL);    
         blake2s_final( S, hash, BLAKE2S_OUTBYTES, CHANNEL);   
 
         //output hash then filename
