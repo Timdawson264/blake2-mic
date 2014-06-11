@@ -50,6 +50,7 @@ static const uint8_t blake2s_sigma[10][16] =
 static inline int blake2s_set_lastnode( blake2s_state *S )
 {
   S->f[1] = ~0U;
+  printf("f1: %u\n",S->f[1]);
   return 0;
 }
 
@@ -62,7 +63,6 @@ static inline int blake2s_clear_lastnode( blake2s_state *S )
 static inline int blake2s_set_lastblock( blake2s_state *S )
 {
   if( S->last_node ) blake2s_set_lastnode( S );
-
   S->f[0] = ~0U;
   return 0;
 }
@@ -223,6 +223,12 @@ int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, c
   return 0;
 }
 
+static inline void printf128(char* name, __m128i v){
+    uint32_t v_a[16];
+    STOREU(v_a, v);
+    printf( "%s: %x%x%x%x\n", name,v_a[3],v_a[2],v_a[1],v_a[0] );
+    
+}
 
 static inline int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2S_BLOCKBYTES] )
 {
@@ -245,6 +251,53 @@ static inline int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2
   row2 = ff1 = LOAD( &S->h[4] );
   row3 = _mm_setr_epi32( 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A );
   row4 = _mm_xor_si128( _mm_setr_epi32( 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ), LOAD( &S->t[0] ) );
+  
+  #undef ROUND 
+  
+    #if defined(DEBUG)  
+        printf128("m0",m0); printf128("m1",m1); printf128("m2",m2); printf128("m3",m3);
+        #define ROUND(r)  \
+        printf("R%u\n", r);\
+        printf128("row1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); \
+        LOAD_MSG_ ##r ##_1(buf1); \
+        printf128("MSG_1",buf1); \
+        G1(row1,row2,row3,row4,buf1); \
+        printf128("G1\nrow1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); \
+        LOAD_MSG_ ##r ##_2(buf2); \
+        printf128("MSG_2",buf2); \
+        G2(row1,row2,row3,row4,buf2); \
+        printf128("G2\nrow1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); \
+        DIAGONALIZE(row1,row2,row3,row4); \
+        printf128("DIAG\nrow1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); \
+        LOAD_MSG_ ##r ##_3(buf3); \
+        printf128("MSG_3",buf3); \
+        G1(row1,row2,row3,row4,buf3); \
+        printf128("G1\nrow1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); \
+        LOAD_MSG_ ##r ##_4(buf4); \
+        printf128("MSG_4",buf4); \
+        G2(row1,row2,row3,row4,buf4); \
+        printf128("G2\nrow1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); \
+        UNDIAGONALIZE(row1,row2,row3,row4); \
+        printf128("UNDIAG\nrow1",row1); printf128("row2",row2); printf128("row3",row3); printf128("row4",row4); 
+    #else
+        #define ROUND(r)  \
+        LOAD_MSG_ ##r ##_1(buf1); \
+        G1(row1,row2,row3,row4,buf1); \
+        LOAD_MSG_ ##r ##_2(buf2); \
+        G2(row1,row2,row3,row4,buf2); \
+        DIAGONALIZE(row1,row2,row3,row4); \
+        LOAD_MSG_ ##r ##_3(buf3); \
+        G1(row1,row2,row3,row4,buf3); \
+        LOAD_MSG_ ##r ##_4(buf4); \
+        G2(row1,row2,row3,row4,buf4); \
+        UNDIAGONALIZE(row1,row2,row3,row4);
+    #endif  
+  
+  
+  
+  
+  
+  
   ROUND( 0 );
   ROUND( 1 );
   ROUND( 2 );

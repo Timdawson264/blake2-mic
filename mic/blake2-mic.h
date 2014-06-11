@@ -59,16 +59,27 @@ extern "C" {
     //hmm interleaving t and f
     uint32_t tf[4*4];
     uint8_t  buf[4 * BLAKE2S_BLOCKBYTES];
-    size_t   buflen; //TODO
-    uint8_t  last_node;
+    size_t   buflen[4];
+    uint8_t  last_node[4];
   } blake2s_state;
 
   // Streaming API
-  int blake2s_init( blake2s_state *S, const uint8_t outlen );
-  int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, const uint8_t keylen );
-  int blake2s_init_param( blake2s_state *S, const blake2s_param *P );
-  int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen );
-  int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen );
+  //int blake2s_init( blake2s_state *S, const uint8_t outlen );
+  int blake2s_init( blake2s_state *S, const uint8_t outlen, size_t CHANNEL );
+  
+  //int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, const uint8_t keylen );
+  int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, const uint8_t keylen, size_t CHANNEL );
+  
+  //int blake2s_init_param( blake2s_state *S, const blake2s_param *P );
+  int blake2s_init_param( blake2s_state *S, const blake2s_param *P, size_t CHANNEL);
+  
+  //int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen );
+  int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen, size_t CHANNEL );
+  
+  //int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen );
+  int blake2s_update( blake2s_state *S, const uint8_t ** in, uint64_t * inlen);
+
+
 
   // Simple API
   int blake2s( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen );
