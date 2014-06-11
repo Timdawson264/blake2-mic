@@ -2,6 +2,7 @@
    BLAKE2 reference source code package - optimized C implementations
 
    Written in 2012 by Samuel Neves <sneves@dei.uc.pt>
+   Modified for the intel PHI in 2014 by Tim Dawson <tkd6@students.waikato.ac.nz>
 
    To the extent possible under law, the author(s) have dedicated all copyright
    and related and neighboring rights to this software to the public domain
@@ -432,35 +433,48 @@ int blake2s_update( blake2s_state *S, const uint8_t ** in, uint64_t * inlen)
     
     //fprintf(stderr,"Starting Update: %u-%u\n",inlen[0],in[0][0]);
     
-    //interleaved Fill buffer
-    #define INTERLEAVE_BUF_FILL \
-    if(in[0]!=NULL){\             
-    memcpy( S->buf,        in[0], 16);\
-    memcpy( S->buf+64,     in[0]+16, 16);\
-    memcpy( S->buf+128,    in[0]+32, 16);\
-    memcpy( S->buf+192,    in[0]+48, 16);}\
-    if(in[1]!=NULL){\
-    memcpy( S->buf+16,     in[1], 16);\
-    memcpy( S->buf+64+16,  in[1]+16, 16);\
-    memcpy( S->buf+128+16, in[1]+32, 16);\
-    memcpy( S->buf+192+16, in[1]+48, 16);}\
-    if(in[2]!=NULL){\
-    memcpy( S->buf+32,     in[2], 16);\
-    memcpy( S->buf+64+32 , in[2]+16, 16);\
-    memcpy( S->buf+128+32, in[2]+32, 16);\
-    memcpy( S->buf+192+32, in[2]+48, 16);}\
-    if(in[3]!=NULL){\
-    memcpy( S->buf+48,     in[3], 16);\
-    memcpy( S->buf+64+48,  in[3]+16, 16);\
-    memcpy( S->buf+128+48, in[3]+32, 16);\
-    memcpy( S->buf+192+48, in[3]+48, 16);}
+
     
   while( inlen[0] > 0 && inlen[1] > 0 && inlen[2] > 0 && inlen[3] > 0)
   {
     if( inlen[0] > BLAKE2S_BLOCKBYTES && inlen[1] > BLAKE2S_BLOCKBYTES && inlen[2] > BLAKE2S_BLOCKBYTES && inlen[3] > BLAKE2S_BLOCKBYTES )
     {
-     
-      INTERLEAVE_BUF_FILL;
+
+    //INTERLEAVE_BUF_FILL;
+    fprintf(stderr,"STATUS_MEM: %u, %u, %u, %u\n",in[3],in[2],in[1],in[0]);
+    if(in[0]!=NULL){             
+        memcpy( S->buf,        in[0], 16);
+        memcpy( S->buf+64,     in[0]+16, 16);
+        memcpy( S->buf+128,    in[0]+32, 16);
+        memcpy( S->buf+192,    in[0]+48, 16);
+        in[0] += BLAKE2S_BLOCKBYTES;//move though input
+        inlen[0] -= BLAKE2S_BLOCKBYTES;
+    }
+    if(in[1]!=NULL){
+        memcpy( S->buf+16,     in[1], 16);
+        memcpy( S->buf+64+16,  in[1]+16, 16);
+        memcpy( S->buf+128+16, in[1]+32, 16);
+        memcpy( S->buf+192+16, in[1]+48, 16);
+        in[1] += BLAKE2S_BLOCKBYTES;//move though input
+        inlen[1] -= BLAKE2S_BLOCKBYTES;
+    }
+    if(in[2]!=NULL){
+        memcpy( S->buf+32,     in[2], 16);
+        memcpy( S->buf+64+32 , in[2]+16, 16);
+        memcpy( S->buf+128+32, in[2]+32, 16);
+        memcpy( S->buf+192+32, in[2]+48, 16);
+        in[2] += BLAKE2S_BLOCKBYTES;//move though input
+        inlen[2] -= BLAKE2S_BLOCKBYTES;
+    }
+    if(in[3]!=NULL){
+        memcpy( S->buf+48,     in[3], 16);
+        memcpy( S->buf+64+48,  in[3]+16, 16);
+        memcpy( S->buf+128+48, in[3]+32, 16);
+        memcpy( S->buf+192+48, in[3]+48, 16);
+        in[3] += BLAKE2S_BLOCKBYTES;//move though input
+        inlen[3] -= BLAKE2S_BLOCKBYTES;
+    }  
+        
         
       blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES, 0);
       blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES, 1);
@@ -468,17 +482,7 @@ int blake2s_update( blake2s_state *S, const uint8_t ** in, uint64_t * inlen)
       blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES, 3);
       
       blake2s_compress( S, S->buf ); // Compress
-      
-      in[0] += BLAKE2S_BLOCKBYTES;//move though input
-      in[1] += BLAKE2S_BLOCKBYTES;//move though input
-      in[2] += BLAKE2S_BLOCKBYTES;//move though input
-      in[3] += BLAKE2S_BLOCKBYTES;//move though input
-      
-      inlen[0] -= BLAKE2S_BLOCKBYTES;
-      inlen[1] -= BLAKE2S_BLOCKBYTES;
-      inlen[2] -= BLAKE2S_BLOCKBYTES;
-      inlen[3] -= BLAKE2S_BLOCKBYTES;
-      
+
     }
     else // inlen <= fill
     {
